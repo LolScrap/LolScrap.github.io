@@ -1,0 +1,150 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+body {
+   display: grid;
+   grid-template-rows: 10vh auto 10vh;
+   height: 100vh;
+   background-color: #414141;
+}
+
+.box {
+    width: 90vw;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    justify-self: center;
+}
+
+.class {
+    border: 2px solid gray;
+    margin: 0.3%;
+    background-color: #fff;
+}
+
+.weeks { 
+    width: 100%;
+    display: flex;
+}
+
+.wTime {
+    position: relative;
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+}
+
+.wTime .from::after {
+    content: " - ";
+}
+
+
+*[contenteditable] {
+    color: #0f5ceb;
+}
+
+
+.header {
+    position: relative;
+    height: auto;
+    width: 100%;
+    background-color: #76003D;
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.header .data, .header .time, .header .week {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.2em;
+    height: 100%;
+}
+
+.header > .data .text {
+    margin-left: 2%;
+}
+
+.header .time, .header .week {
+    justify-self: flex-end;
+    margin-right: 1rem;
+}
+
+/* Day strikeout */
+.time span {
+    text-decoration: line-through;
+    cursor: pointer;
+}
+
+.time span.active {
+    text-decoration: none;
+    color: #E64164;
+}
+
+/* footer */
+.footer {
+    background-color: #222;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.button {
+    width: 5rem;
+    height: 50%;
+    border-radius: 1rem;
+    border: 2px solid silver;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0f5ceb;
+    color: #fff;
+    margin-right: 2%;
+    cursor: pointer;
+    user-select: none;
+}
+
+.button:active {
+    box-shadow: 0 0 0 20px #0f3ceb inset;
+    font-size: 90%;
+}
+
+.button.disabled {
+    display: none;
+}
+
+/* Button on tables */
+.remove {
+    background-color: #fff;
+    border: 2px #76003D solid;
+    border-radius: 1rem;
+    padding: 0.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-self: center;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.remove:hover {
+    color: #E64164;
+    cursor: pointer;
+}
+
+.remove:active {
+    font-size: 90%;
+    box-shadow: 0 0 0 1px #76003D inset;
+    user-select: none;
+}

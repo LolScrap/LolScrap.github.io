@@ -1,0 +1,208 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    position: relative;
+    height: auto;
+    width: 100vw;
+    background-color: #76003D;
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) 0.25fr;
+}
+
+.header .data, .header .time, .header .week {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.2em;
+    height: 100%;
+}
+
+.header > .data .text {
+    margin-left: 2%;
+}
+
+.header .time, .header .week {
+    justify-self: flex-end;
+    margin-right: 1rem;
+}
+
+
+
+body {
+    background-color: #414141;
+    display: grid;
+    grid-template-rows: 10vh auto;
+    width: 100vw;
+    height: 100vh;
+}
+
+@media(max-height: 550px) {
+    body {
+        grid-template-rows: 15vh auto;
+    }
+}
+
+@media(max-width: 470px) {
+    .header .data, .header .time {
+        font-size: 1em;
+    }
+}
+
+.box {
+    display: flex;
+    justify-content: start;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.card {
+    min-width: 10%;
+    height: 30%;
+    margin: 1%;
+    background-color: #fff;
+    position: relative;
+    display: grid;
+    grid-template-rows: 1fr minmax(auto, 3fr) 1fr;
+    transition: transform 2s ease-in-out;
+}
+
+.card .title {
+    background-color: #78003F;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card .body {
+    background-color: #fff;
+    padding: 0.2rem;
+    line-height: 1.5;
+    animation: none;
+}
+
+.card .footer {
+    background-color: #222;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.accent {
+    color: #E64164;
+    font-weight: bold;
+
+}
+
+.footer.lecture-next {
+    background-color: #1f4fa8 !important;
+}
+
+.footer.lecture-now {
+    background-color: #308615 !important;
+}
+
+.card.lecture-now .body {
+    animation: green-long 10s ease;
+}
+
+.footer.lecture-ended {
+    background-color: #f52a23 !important;
+}
+
+.card.lecture-next .body{
+    background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,35,255,1) 100%);
+    background-size: 400% 400%;
+    animation: pulse-pause 2s ease infinite;
+}
+
+.card.lecture-now {
+    transform: scale(1) translate(0px, 0px);
+}
+
+@keyframes pulse-pause {
+    from {
+        background-position: 50% 0%;
+    }
+
+    50% {
+        background-position: 50% 100%;
+    }
+
+    to {
+        background-position: 50% 0%;
+    }
+
+}
+
+@keyframes green-long{
+    from {
+        background-color: #fff;
+    }
+
+    10% {
+        background-color: #308615;
+    }
+
+    to {
+        background-color: #fff;
+    }
+}
+
+/* .card.lecture-ended {
+} */
+
+/* Hamb-menu quick */
+
+.header .settings {
+    position: relative;
+}
+
+.mid-bar {
+    position: relative;
+    width: 50%;
+    height: 10%;
+    top: 40%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #fff;
+    border-radius: 1rem;
+}
+
+.mid-bar::before {
+    position: absolute;
+    content: "";
+    transform: translateY(-250%);
+    width: 100%;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #fff;
+    border-radius: 1rem;
+}
+
+.mid-bar::after {
+    position: absolute;
+    content: "";
+    transform: translateY(250%);
+    width: 100%;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #fff;
+    border-radius: 1rem;
+    
+}
+
+.header a {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+}

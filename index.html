@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>University schedule</title>
+</head>
+
+<body>
+    <div class="header">
+        <div class="data"></div>
+        <div class="week"></div>
+        <div class="time"></div>
+        <div class="settings">
+            <a href="./data.html"></a>
+            <div class="mid-bar"></div>
+        </div>
+    </div>
+    <div class="box">
+        <template id="card">
+            <div class="card">
+                <div class="title"></div>
+                <div class="body"></div>
+                <div class="footer">T-100.00.00</div>
+            </div>
+        </template>
+    </div>
+</body>
+
+<script>
+    Date.prototype.getWeek = function () {
+        var date = new Date(this.getTime());
+        date.setHours(0, 0, 0, 0);
+        // Thursday in current week decides the year.
+        date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+        // January 4 is always in week 1.
+        var week1 = new Date(date.getFullYear(), 0, 4);
+        // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+        return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+            - 3 + (week1.getDay() + 6) % 7) / 7);
+    };
+
+    Object.prototype.inBetween = function (comp) {
+        return (this[0] <= comp && this[1] >= comp);
+    };
+
+    let el = {};
+    const req = new XMLHttpRequest();
+    const box = document.querySelector(".box");
+    const org = box.querySelector("#card").content.querySelector(".card");
+    const dWeek = { 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat", 0: "Sun" }
+
+    let ref = [];
+
+    function createElement(elements) {
+        el = JSON.parse(elements.target.response);
+        const gDate = new Date();
+        const head = document.querySelector(".header>.data");
+        const week = document.querySelector(".header>.week");
+        const currentWeek = gDate.getWeek() + 1 - el.startingWeek;
+        week.innerHTML = `Week #${currentWeek}`;
+        head.innerHTML = `<div class="text" > ${el.title} ${el.name}, ${el.status} </div>`;
+
+        for (let _class of el.timetable) {
+            if (_class.days.match(/\d\d?/g).filter(a => a % 7 == gDate.getDay().toString()) <= 0) continue;
+            else if (!_class.weeks.match(/\d\d?/g).sort((a, b) => { return a - b }).inBetween(currentWeek)) continue;
+            const timeArr = _class.time.filter(a => a.day % 7 == gDate.getDay())[0];
+            if (gDate >= toDate(timeArr.to.split("."), 5)) continue;
+            let card = org.cloneNode(true);
+            card.querySelector(".title").innerHTML = _class.title;
+            card.querySelector(".body").innerHTML = `${_class.place} </br> ${timeArr.from} - ${timeArr.to} </br> Weeks: ${_class.weeks}
+            <br/> Days: ${enumDays(_class.days)}`;
+            ref.push({ "time": timeArr, "card": card });
+        }
+        ref.sort((a, b) => { return toTime(a.time.from) - toTime(b.time.from) });
+        for (let el of ref) box.appendChild(el.card);
+        doTime();
+    }
+
+    function toTime(a) {
+        return parseInt(a[0]) * 60 + parseInt(a[1]);
+    }
+
+    function formatTime(time) {
+        const h = time.getHours().toString().padStart(2, "0");
+        const m = time.getMinutes().toString().padStart(2, "0");
+        const s = time.getSeconds().toString().padStart(2, "0");
+
+        return `${h}:${m}:${s}`;
+    }
+
+    function toDate(a, offsetMins = 0) {
+        let d = new Date();
+        d.setHours(parseInt(a[0]));
+        d.setMinutes(parseInt(a[1]) + offsetMins);
+        return d;
+    }
+
+    function enumDays(days) {
+        const today = (new Date()).getDay().toString();
+        let enumerated = "";
+        days = days.match(/\d/g);
+        days.sort((a, b) => { return a - b });
+        for (let day of days) {
+            if (today == day % 7) {
+                enumerated += "<span class='accent'>";
+                enumerated += `${dWeek[day % 7]} `;
+                enumerated += "</span>";
+            }
+            else enumerated += `${dWeek[day % 7]} `;
+        }
+        return enumerated;
+    }
+
+    function doTime() {
+        let d = new Date();
+
+        document.querySelector(".header .time").innerHTML = `${dWeek[d.getDay()]}, ${formatTime(d)}`;
+
+        for (const [key, el] of ref.entries()) {
+            const splitStartTime = el.time.from.split(".");
+            d.setHours(parseInt(splitStartTime[0]));
+            d.setMinutes(parseInt(splitStartTime[1]));
+            d.setSeconds(0);
+            const minTo = parseInt(el.time.to.split(".")[0]) * 60 + parseInt(el.time.to.split(".")[1]) - d.getMinutes() - d.getHours() * 60;
+            let delta = new Date() - d;
+            const h = Math.floor(Math.abs(delta) / 1000 / 60 / 60);
+            const m = Math.floor(Math.abs(delta) / 1000 / 60) - h * 60;
+            const s = Math.round(Math.abs(delta) / 1000) - h * 60 * 60 - m * 60;
+            el.card.querySelector(".footer").innerHTML = `T${(delta > 0 ? "+" : "-")}${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+            if (delta >= -15 * 60 * 1000 && delta <= 0) {
+                el.card.querySelector(".footer").classList.add("lecture-next");
+                el.card.classList.add("lecture-next");
+            }
+            else if (delta <= minTo * 60 * 1000 && delta >= 0) {
+                el.card.querySelector(".footer").classList.add("lecture-now");
+                if (el.card.classList.contains("lecture-next")) el.card.classList.remove("lecture-next");
+                el.card.classList.add("lecture-now");
+            }
+            else if (delta >= minTo * 60 * 1000) el.card.querySelector(".footer").classList.add("lecture-ended");
+            if (delta >= (minTo + 5) * 60 * 1000) {
+                box.removeChild(el.card);
+                ref.splice(key, 1);
+            }
+        }
+        setTimeout(doTime, 1000);
+    }
+
+    req.onload = createElement;
+    req.open("get", "./university.json");
+    req.send();
+</script>
+
+</html>

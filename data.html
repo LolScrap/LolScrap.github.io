@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="data.css">
+    <title>Your data</title>
+</head>
+
+<div class="header">
+    <div class="data"></div>
+    <div class="week"></div>
+    <div class="time"> <a href="./">Back to live</a></div>
+</div>
+<div class="box">
+    <template id="class">
+        <div class="class">
+            <div class="title" contenteditable></div>
+            <div class="place" contenteditable></div>
+            <div class="time">
+                <div class="wTime">
+                    <span class="daySpan" value="1">Mon</span>
+                    <div class="from" contenteditable></div>
+                    <div class="to" contenteditable></div>
+                </div>
+                <div class="wTime">
+                    <span class="daySpan" value="2">Tue</span>
+                    <div class="from" contenteditable></div>
+                    <div class="to" contenteditable></div>
+                </div>
+                <div class="wTime">
+                    <span class="daySpan" value="3">Wed</span>
+                    <div class="from" contenteditable></div>
+                    <div class="to" contenteditable></div>
+                </div>
+                <div class="wTime">
+                    <span class="daySpan" value="4">Thu</span>
+                    <div class="from" contenteditable></div>
+                    <div class="to" contenteditable></div>
+                </div>
+                <div class="wTime">
+                    <span class="daySpan" value="5">Fri</span>
+                    <div class="from" contenteditable></div>
+                    <div class="to" contenteditable></div>
+                </div>
+                <div class="wTime">
+                    <span class="daySpan" value="6">Sat</span>
+                    <div class="from" contenteditable></div>
+                    <div class="to" contenteditable></div>
+                </div>
+                <div class="wTime">
+                    <span class="daySpan" value="7">Sun</span>
+                    <div class="from" contenteditable></div>
+                    <div class="to" contenteditable></div>
+                </div>
+            </div>
+            <div class="weeks">Weeks from&nbsp; <div class="wFrom" contenteditable="">1</div> &nbsp;to&nbsp; <div
+                    class="wTo" contenteditable="">53</div>
+            </div>
+            <button class="remove" tabindex="-1" onclick="remove(this)">Remove</button>
+        </div>
+    </template>
+</div>
+<div class="footer">
+    <a class="button disabled" onclick="this.classList.toggle('disabled')">Download</a>
+    <div class="button add" onclick="addPlaceholder()">Add</div>
+    <div class="button" onclick="generateJson()">Save</div>
+</div>
+</body>
+
+<script>
+
+    Node.prototype.inner = function (el) {
+        return this.querySelector(el).innerHTML;
+    }
+
+    const dWeek = { 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat", 7: "Sun" }
+    const org = document.querySelector("#class").content.querySelector(".class");
+    const box = document.querySelector(".box");
+    let resp;
+    function createElement(elements) {
+        resp = JSON.parse(elements.target.response);
+
+        //header
+        const head = document.querySelector(".header>.data");
+        const week = document.querySelector(".header>.week");
+        week.innerHTML = `Starting week: <div class="stWeek" contenteditable> ${resp.startingWeek}</div>`;
+        head.innerHTML = `<div class="text" > ${resp.title} ${resp.name}, ${resp.status} </div>`;
+
+        //Classes
+        for (_class of resp.timetable) {
+            let curr = org.cloneNode(true);
+            curr.querySelector(".title").innerHTML = _class.title;
+            curr.querySelector(".place").innerHTML = _class.place;
+            // Weeks
+            curr.querySelector(".weeks .wFrom").innerHTML = _class.weeks.split("-")[0];
+            curr.querySelector(".weeks .wTo").innerHTML = _class.weeks.split("-")[1];
+            // Timetable
+            for (let nTime of _class.time) {
+                let dSpan = curr.querySelector(`.time .wTime span[value='${nTime.day}']`);
+                dSpan.classList.toggle("active");
+                dSpan.parentElement.querySelector(".from").innerHTML = nTime.from;
+                dSpan.parentElement.querySelector(".to").innerHTML = nTime.to;
+            }
+
+            box.appendChild(curr);
+        }
+    }
+    // Send the request for file 
+    const req = new XMLHttpRequest();
+    req.onload = createElement;
+    req.open("get", "./university.json");
+    req.send();
+
+    // Generate new file based on information
+    function generateJson() {
+        const allClasses = document.querySelectorAll(".class");
+        let newJson = {
+            "name": resp.name,
+            "title": resp.title,
+            "status": resp.status,
+            "startingWeek": 38,
+            timetable: []
+        };
+
+        for (_class of allClasses) {
+            let tableFragment = new Object();
+            tableFragment.time = [];
+            tableFragment.days = "0";
+            let currDays = "";
+            tableFragment.title = _class.inner(".title");
+            tableFragment.place = _class.inner(".place");
+            tableFragment.weeks = `${_class.inner(".weeks .wFrom")}-${_class.inner(".weeks .wTo")}`;
+
+            // Go through all times {class->time}
+            //Fill in day string
+            //Time from-to as string
+
+            for (let time of [..._class.querySelectorAll(".time .wTime")].filter(a => { return a.querySelector(".wTime .daySpan").classList.contains("active") })) {
+                let currValue = time.querySelector(".daySpan").attributes.value.value
+                currDays += currValue + ",";
+                tableFragment.days = currDays;
+                tableFragment.time.push({ "day": currValue, "from": time.inner(".from"), "to": time.inner(".to") });
+            }
+            newJson.timetable.push(tableFragment);
+        }
+
+        // $("body").innerHTML = JSON.stringify(newJson);
+        let anchor = document.querySelector("a.button");
+        anchor.classList.remove("disabled");
+        const newHref = "data:application/json;charset=utf-8," + encodeURIComponent((JSON.stringify(newJson)));
+        anchor.setAttribute("href", newHref);
+        anchor.setAttribute("download", "university.json");
+    }
+
+    // Removing a class card
+    function remove(el) {
+        const rem = el.parentElement;
+        rem.parentElement.removeChild(rem);
+    }
+
+    // Add a new class card
+    function addPlaceholder() {
+        let card = org.cloneNode(true);
+        card.querySelector(".title").innerHTML = "Lecture title";
+        card.querySelector(".place").innerHTML = "Place";
+        box.appendChild(card);
+    }
+
+</script>
+
+<!-- Listener scripts -->
+<script>
+    document.addEventListener("mousedown", function (event) {
+        if (event.target.classList.contains("daySpan")) {
+            if (event.target.classList.toggle("active")) {
+                event.target.parentElement.querySelector(".from").innerHTML = "08.00";
+                event.target.parentElement.querySelector(".to").innerHTML = "09.00";
+            }
+            else {
+                event.target.parentElement.querySelector(".from").innerHTML = "";
+                event.target.parentElement.querySelector(".to").innerHTML = "";
+            }
+        }
+    })
+</script>
+
+</html>
