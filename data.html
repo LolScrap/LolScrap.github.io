@@ -63,6 +63,16 @@
     </template>
 </div>
 <div class="footer">
+    <select onchange="selectDay(this)" class="button">
+        <option value="0" selected>Show all</option>
+        <option value="1">Mon</option>
+        <option value="2">Tue</option>
+        <option value="3">Wed</option>
+        <option value="4">Thu</option>
+        <option value="5">Fri</option>
+        <option value="6">Sat</option>
+        <option value="7">Sun</option>
+    </select>
     <a class="button disabled" onclick="this.classList.toggle('disabled')">Download</a>
     <div class="button add" onclick="addPlaceholder()">Add</div>
     <div class="button" onclick="generateJson()">Save</div>
@@ -166,6 +176,19 @@
         card.querySelector(".title").innerHTML = "Lecture title";
         card.querySelector(".place").innerHTML = "Place";
         box.appendChild(card);
+    }
+
+    //Filter system
+    function selectDay(el) {
+        if (el.value == 0) {
+            for (let _class of box.querySelectorAll(".filter")) _class.classList.remove("filter");
+            return;
+        }
+        for (let _class of box.querySelectorAll(".class")) {
+            const valid = _class.querySelector(".time .wTime .daySpan.active");
+            if (valid && valid.attributes.value.value == el.value) _class.classList.remove("filter");
+            else _class.classList.add("filter");
+        }
     }
 
 </script>

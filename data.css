@@ -80,6 +80,19 @@ body {
     margin-right: 1rem;
 }
 
+@media(max-height: 550px) {
+    body {
+        grid-template-rows: 15vh auto;
+    }
+}
+
+@media(max-width: 470px) {
+    .header .data, .header .time {
+        font-size: 1em;
+    }
+}
+
+
 /* Day strikeout */
 .time span {
     text-decoration: line-through;
@@ -147,4 +160,8 @@ body {
     font-size: 90%;
     box-shadow: 0 0 0 1px #76003D inset;
     user-select: none;
+}
+
+.filter {
+    display: none;
 }
