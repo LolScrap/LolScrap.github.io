@@ -185,9 +185,11 @@
             return;
         }
         for (let _class of box.querySelectorAll(".class")) {
-            const valid = _class.querySelector(".time .wTime .daySpan.active");
-            if (valid && valid.attributes.value.value == el.value) _class.classList.remove("filter");
-            else _class.classList.add("filter");
+            const valid = _class.querySelectorAll(".time .wTime .daySpan.active");
+            for (let extra of valid) {
+                if (extra.attributes.value.value == el.value) _class.classList.remove("filter");
+                else _class.classList.add("filter");
+            }
         }
     }
 
