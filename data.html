@@ -187,7 +187,10 @@
         for (let _class of box.querySelectorAll(".class")) {
             const valid = _class.querySelectorAll(".time .wTime .daySpan.active");
             for (let extra of valid) {
-                if (extra.attributes.value.value == el.value) _class.classList.remove("filter");
+                if (extra.attributes.value.value == el.value) {
+                    _class.classList.remove("filter");
+                    break;
+                }
                 else _class.classList.add("filter");
             }
         }
